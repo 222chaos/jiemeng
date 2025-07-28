@@ -7,6 +7,12 @@ import {
   FaSnowflake,
   FaSmog,
   FaQuestionCircle,
+  FaCloudMoon,
+  FaCloudSun,
+  FaCloudSunRain,
+  FaWind,
+  FaBolt,
+  FaMoon,
 } from 'react-icons/fa';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
@@ -18,18 +24,42 @@ moment.locale('zh-cn');
 const WeatherDisplay = ({ weatherText, futureWeatherText }) => {
   const getWeatherIcon = (weather) => {
     switch (weather) {
+      case '小雨':
+        return <FaCloudRain color="#69c" />;
+      case '中雨':
+        return <FaCloudRain color="#4682B4" />;
+      case '大雨':
+        return <FaCloudShowersHeavy color="#1E90FF" />;
+      case '暴雨':
+        return <FaCloudShowersHeavy color="#00008B" />;
+      case '特大暴雨':
+        return <FaCloudShowersHeavy color="#000080" />;
+
+      case '小雪':
+        return <FaSnowflake color="#ADD8E6" />;
+      case '中雪':
+        return <FaSnowflake color="#87CEFA" />;
+      case '大雪':
+        return <FaSnowflake color="#FFFFFF" />;
+      case '暴雪':
+        return <FaSnowflake color="#FFFFFF" />;
       case '晴':
-        return <FaSun />;
+        return <FaSun color="orange" />;
       case '多云':
         return <FaCloud />;
-      case '小雨':
-        return <FaCloudRain />;
-      case '大雨':
-        return <FaCloudShowersHeavy />;
-      case '大雪':
-        return <FaSnowflake />;
+      case '阴':
+        return <FaCloudMoon />;
+      case '雷阵雨':
+        return <FaBolt color="#FFD700" />;
+      case '雨夹雪':
+        return <FaCloudSunRain />;
       case '雾':
+      case '霾':
         return <FaSmog />;
+      case '大风':
+        return <FaWind />;
+      case '夜间晴':
+        return <FaMoon />;
       default:
         return <FaQuestionCircle />;
     }

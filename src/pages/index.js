@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Layout, ConfigProvider, Drawer, Table, Button } from 'antd';
-import axios from 'axios';
+import { Layout, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import StyledComponentsRegistry from './component';
 import { useSession } from 'next-auth/react';
@@ -18,6 +17,23 @@ export default function Home() {
   const [open, setOpen] = useState(false);
   const [dreamData, setDreamData] = useState([]);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // 从localStorage加载数据
+  useEffect(() => {
+    const loadDreamData = () => {
+      const savedData = localStorage.getItem('dreamData');
+      if (savedData) {
+        setDreamData(JSON.parse(savedData));
+      }
+    };
+    loadDreamData();
+  }, []);
+
+  // 保存数据到localStorage
+  const saveDreamData = (data) => {
+    localStorage.setItem('dreamData', JSON.stringify(data));
+  };
+
   useEffect(() => {
     setIsHydrated(true);
 
@@ -31,7 +47,6 @@ export default function Home() {
           headers: {
             'Content-Type': 'application/json',
           },
-
           body: JSON.stringify({ location }),
         });
 
@@ -110,18 +125,17 @@ export default function Home() {
 
         await processData(await reader.read());
 
-        const newDreamData = [...dreamData, { dream, response: tempText }];
-        setDreamData(newDreamData);
+        const newDream = {
+          id: Date.now(), // 使用时间戳作为唯一ID
+          dream,
+          response: tempText,
+          username: session?.user?.name || 'anonymous',
+          date: new Date().toISOString(),
+        };
 
-        await axios.post(
-          `/api/storage`,
-          {
-            dream,
-            response: tempText,
-            username: session?.user?.name,
-          },
-          { timeout: 10000 },
-        );
+        const newDreamData = [...dreamData, newDream];
+        setDreamData(newDreamData);
+        saveDreamData(newDreamData);
       }
     } catch (error) {
       console.error(error);
@@ -134,24 +148,13 @@ export default function Home() {
     setDeleteLoading(true);
     const id = record.id;
 
-    fetch(`/api/delete`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, status: false }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === 'Record updated') {
-          const updatedData = dreamData.filter((item) => item.id !== id);
-          setDreamData(updatedData);
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating data:', error);
-      });
+    // 本地删除逻辑
+    const updatedData = dreamData.filter((item) => item.id !== id);
+    setDreamData(updatedData);
+    saveDreamData(updatedData);
+    setDeleteLoading(false);
   };
+
   const showDrawer = () => {
     setOpen(true);
   };

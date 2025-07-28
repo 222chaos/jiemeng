@@ -32,10 +32,10 @@ export default function MyPage({
 }) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('user');
   const [buttonText, setButtonText] = useState('解梦');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const isSignedIn = session !== null;
+  const isSignedIn = session !== true;
 
   const handleLogin = async () => {
     const result = await signIn('github');
